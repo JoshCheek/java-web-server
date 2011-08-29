@@ -1,0 +1,4 @@
+out/*
+**/*.class
+**/*.iws
+*.iws
