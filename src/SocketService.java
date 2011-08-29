@@ -20,23 +20,30 @@ public class SocketService {
     public void serve(int port, SocketServer server) throws Exception {
         itsServer    = server;
         serverSocket = new ServerSocket(port);
-        serverThread = new Thread(
+        serverThread = makeServerThread();
+        serverThread.start();
+    }
+
+    private Thread makeServerThread() {
+        return new Thread(
             new Runnable() {
-                    public void run() {
-                        running = true;
-                        while (running) {
-                            try {
-                                Socket socket = serverSocket.accept();
-                                itsServer.serve(socket);
-                                socket.close();
-                                ++connections;
-                            } catch (IOException e) {
-                            }
-                        }
-                    }
+                public void run() {
+                    running = true;
+                    while (running)
+                        acceptServeAndConnect();
+                }
             }
         );
-        serverThread.start();
+    }
+
+    private void acceptServeAndConnect() {
+        try {
+            Socket socket = serverSocket.accept();
+            itsServer.serve(socket);
+            socket.close();
+            ++connections;
+        } catch (IOException e) {
+        }
     }
 
     public void close() throws IOException {
