@@ -47,9 +47,7 @@ public class SocketServiceTest extends junit.framework.TestCase {
     public void testSendMessage() throws Exception {
         ss.serve(PORT, new HelloServer());
         Socket              s       = new Socket("localhost", PORT);
-        InputStream         is      = s.getInputStream();
-        InputStreamReader   isr     = new InputStreamReader(is);
-        BufferedReader      br      = new BufferedReader(isr);
+        BufferedReader      br      = SocketService.getBufferedReader(s);
         String              answer  = br.readLine();
         assertEquals("Hello", answer);
     }
@@ -57,11 +55,8 @@ public class SocketServiceTest extends junit.framework.TestCase {
     public void testReceiveMessage() throws Exception {
         ss.serve(PORT, new EchoService());
         Socket              s       = new Socket("localhost", PORT);
-        InputStream         is      = s.getInputStream();
-        InputStreamReader   isr     = new InputStreamReader(is);
-        BufferedReader      br      = new BufferedReader(isr);
-        OutputStream        os      = s.getOutputStream();
-        PrintStream         ps      = new PrintStream(os);
+        BufferedReader      br      = SocketService.getBufferedReader(s);
+        PrintStream         ps      = SocketService.getPrintStream(s);
         ps.println("MyMessage");
         String              answer  = br.readLine();
         s.close();
@@ -95,11 +90,8 @@ public class SocketServiceTest extends junit.framework.TestCase {
     private class EchoService implements SocketServer {
         public void serve(Socket s) {
             try {
-                InputStream         is      = s.getInputStream();
-                InputStreamReader   isr     = new InputStreamReader(is);
-                BufferedReader      br      = new BufferedReader(isr);
-                OutputStream        os      = s.getOutputStream();
-                PrintStream         ps      = new PrintStream(os);
+                BufferedReader      br      = SocketService.getBufferedReader(s);
+                PrintStream         ps      = SocketService.getPrintStream(s);
                 String              token   = br.readLine();
                 ps.println(token);
             } catch (IOException e) {
