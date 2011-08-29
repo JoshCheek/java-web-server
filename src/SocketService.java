@@ -13,36 +13,32 @@ public class SocketService {
     private ServerSocket    serverSocket = null;
     private int             connections  = 0;
     private Thread          serverThread = null;
+    private boolean         running      = false;
 
 
-    public void serve(int port) {
-        try {
-            serverSocket = new ServerSocket(port);
-        } catch (IOException e) {
-        }
+    public void serve(int port) throws Exception {
+        serverSocket = new ServerSocket(port);
         serverThread = new Thread(
-                new Runnable() {
+            new Runnable() {
                     public void run() {
-                        try {
-
-                            Socket socket = serverSocket.accept();
-                            socket.close();
-                            ++connections;
-                        } catch (IOException e) {
-                            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                        running = true;
+                        while (running) {
+                            try {
+                                Socket socket = serverSocket.accept();
+                                socket.close();
+                                ++connections;
+                            } catch (IOException e) {
+                            }
                         }
                     }
-                }
+            }
         );
         serverThread.start();
     }
 
-    public void close() {
-        try {
-            serverSocket.close();
-        } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
+    public void close() throws IOException {
+        running = false;
+        serverSocket.close();
     }
 
     public int connections() {

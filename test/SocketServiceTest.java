@@ -9,12 +9,23 @@ import java.net.Socket;
  * To change this template use File | Settings | File Templates.
  */
 public class SocketServiceTest extends junit.framework.TestCase {
-    public void testOneConnection() {
+    private static final int PORT = 1501;
+
+    public void testOneConnection() throws Exception {
         SocketService ss = new SocketService();
-        ss.serve(1501);
-        connect(1501);
+        ss.serve(PORT);
+        connect(PORT);
         ss.close();
         assertEquals(1, ss.connections());
+    }
+
+    public void testManyConnections() throws Exception {
+        SocketService ss = new SocketService();
+        ss.serve(PORT);
+        for( int i = 0; i < 10; ++i )
+            connect(PORT);
+        ss.close();
+        assertEquals(10, ss.connections());
     }
 
     private void connect(int port) {
