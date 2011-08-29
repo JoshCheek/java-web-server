@@ -14,9 +14,11 @@ public class SocketService {
     private int             connections  = 0;
     private Thread          serverThread = null;
     private boolean         running      = false;
+    private SocketServer    itsServer    = null;
 
 
-    public void serve(int port) throws Exception {
+    public void serve(int port, SocketServer server) throws Exception {
+        itsServer    = server;
         serverSocket = new ServerSocket(port);
         serverThread = new Thread(
             new Runnable() {
@@ -25,6 +27,7 @@ public class SocketService {
                         while (running) {
                             try {
                                 Socket socket = serverSocket.accept();
+                                itsServer.serve(socket);
                                 socket.close();
                                 ++connections;
                             } catch (IOException e) {
