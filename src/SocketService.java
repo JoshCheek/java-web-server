@@ -1,6 +1,9 @@
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -10,11 +13,11 @@ import java.net.Socket;
  * To change this template use File | Settings | File Templates.
  */
 public class SocketService {
-    private ServerSocket    serverSocket = null;
-    private int             connections  = 0;
-    private Thread          serverThread = null;
-    private boolean         running      = false;
-    private SocketServer    itsServer    = null;
+    private ServerSocket    serverSocket  = null;
+    private Thread          serverThread  = null;
+    private boolean         running       = false;
+    private SocketServer    itsServer     = null;
+    private List            serverThreads = Collections.synchronizedList(new LinkedList());
 
     public static BufferedReader getBufferedReader(Socket s) throws IOException {
         InputStream is = s.getInputStream();
@@ -48,19 +51,43 @@ public class SocketService {
     private void acceptServeAndConnect() {
         try {
             Socket socket = serverSocket.accept();
-            itsServer.serve(socket);
-            socket.close();
-            ++connections;
+            Thread serverThread = new Thread(new ServiceRunnable(socket));
+            serverThreads.add(serverThread);
+            serverThread.start();
         } catch (IOException e) {
         }
     }
 
-    public void close() throws IOException {
-        running = false;
-        serverSocket.close();
+    public void close() throws Exception {
+        if(running) {
+            running = false;
+            serverSocket.close();
+            serverThread.join();
+            while(serverThreads.size() > 0) {
+                Thread thread = (Thread) serverThreads.get(0);
+                serverThreads.remove(thread);
+                thread.join();
+            }
+        } else {
+            serverSocket.close();
+        }
     }
 
-    public int connections() {
-        return connections;
+
+    private class ServiceRunnable implements Runnable {
+        private Socket itsSocket;
+
+        public ServiceRunnable(Socket socket) {
+            itsSocket = socket;
+        }
+
+        public void run() {
+            try {
+                itsServer.serve(itsSocket);
+                serverThreads.remove(Thread.currentThread());
+                itsSocket.close();
+            } catch (IOException e) {
+            }
+        }
     }
 }

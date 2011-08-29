@@ -10,9 +10,11 @@ import java.net.Socket;
  */
 public class SocketServiceTest extends junit.framework.TestCase {
     private static final int    PORT = 1501;
+    private static int          threadsActive = 0;
     private int                 connections = 0;
     private SocketServer        connectionCounter;
     private SocketService       ss;
+
 
     public SocketServiceTest(String name) {
         super(name);
@@ -53,7 +55,7 @@ public class SocketServiceTest extends junit.framework.TestCase {
     }
 
     public void testReceiveMessage() throws Exception {
-        ss.serve(PORT, new EchoService());
+        ss.serve(PORT, new EchoServer());
         Socket              s       = new Socket("localhost", PORT);
         BufferedReader      br      = SocketService.getBufferedReader(s);
         PrintStream         ps      = SocketService.getPrintStream(s);
@@ -61,6 +63,37 @@ public class SocketServiceTest extends junit.framework.TestCase {
         String              answer  = br.readLine();
         s.close();
         assertEquals("MyMessage", answer);
+    }
+
+    public void testMultiThreaded() throws Exception {
+        ss.serve(PORT, new EchoServer());
+        Socket          s1  = new Socket("localhost", PORT);
+        BufferedReader  br  = SocketService.getBufferedReader(s1);
+        PrintStream     ps  = SocketService.getPrintStream(s1);
+
+        Socket          s2  = new Socket("localhost", PORT);
+        BufferedReader  br2 = SocketService.getBufferedReader(s2);
+        PrintStream     ps2 = SocketService.getPrintStream(s2);
+
+        ps2.println("MyMessage");
+        String answer2 = br2.readLine();
+        s2.close();
+
+        ps.println("MyMessage");
+        String answer = br.readLine();
+        s1.close();
+
+        assertEquals("MyMessage", answer2);
+        assertEquals("MyMessage", answer);
+    }
+
+    public void testAllServersClosed() throws Exception {
+        ss.serve(PORT, new WaitThenClose());
+        Socket s1 = new Socket("localhost", PORT);
+        Thread.sleep(20);
+        assertEquals(1, threadsActive);
+        ss.close();
+        assertEquals(0, threadsActive);
     }
 
     private void connect(int port) {
@@ -87,7 +120,7 @@ public class SocketServiceTest extends junit.framework.TestCase {
         }
     }
 
-    private class EchoService implements SocketServer {
+    private class EchoServer implements SocketServer {
         public void serve(Socket s) {
             try {
                 BufferedReader      br      = SocketService.getBufferedReader(s);
@@ -95,6 +128,21 @@ public class SocketServiceTest extends junit.framework.TestCase {
                 String              token   = br.readLine();
                 ps.println(token);
             } catch (IOException e) {
+            }
+        }
+    }
+
+    private class WaitThenClose implements SocketServer {
+        public void serve(Socket s) {
+            ++threadsActive;
+            delay();
+            --threadsActive;
+        }
+
+        private void delay() {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
             }
         }
     }
