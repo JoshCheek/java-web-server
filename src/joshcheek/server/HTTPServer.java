@@ -22,4 +22,8 @@ public class HTTPServer implements SocketServer {
     public String requestURI() {
         return "/";
     }
+
+    public String requestProtocolVersion() {
+        return "HTTP/1.0";
+    }
 }

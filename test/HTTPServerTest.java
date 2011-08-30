@@ -31,6 +31,13 @@ public class HTTPServerTest extends junit.framework.TestCase {
         assertEquals("/", server.requestURI());
     }
 
+    public void testRecognizesComplexGetRequests() throws Exception {
+        connect("GET / HTTP/1.0");
+        assertEquals("GET",         server.requestMethod());
+        assertEquals("/",           server.requestURI());
+        assertEquals("HTTP/1.0",    server.requestProtocolVersion());
+    }
+
     private void connect(String requestLine) throws Exception {
 
     }
