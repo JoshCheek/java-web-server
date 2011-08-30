@@ -14,4 +14,12 @@ public class HTTPServer implements SocketServer {
     public void serve(Socket s) throws IOException {
 
     }
+
+    public String requestMethod() {
+        return "GET";
+    }
+
+    public String requestURI() {
+        return "/";
+    }
 }

@@ -25,14 +25,11 @@ public class HTTPServerTest extends junit.framework.TestCase {
 
     // primarily getting interface expectations from http://www.w3.org/Protocols/HTTP/HTTP2.html
 
-//    public void testRecognizesSimpleGetRequests() throws Exception {
-//        connect("GET /");
-//        assertEquals("GET", request().method());
-//    }
-//
-//    private Request request() {
-//        return server.lastRequest();
-//    }
+    public void testRecognizesSimpleGetRequests() throws Exception {
+        connect("GET /");
+        assertEquals("GET", server.requestMethod());
+        assertEquals("/", server.requestURI());
+    }
 
     private void connect(String requestLine) throws Exception {
 
