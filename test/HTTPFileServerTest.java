@@ -8,7 +8,7 @@ import java.net.Socket;
  * Time: 5:22 PM
  * To change this template use File | Settings | File Templates.
  */
-public class HTTPFileServerTest extends junit.framework.TestCase{
+public class HTTPFileServerTest extends junit.framework.TestCase {
     public  static final int    PORT = SocketServiceTest.PORT;
     private static final String TEST_FILE_NAME = "testfile.html";
     private static final String TEST_FILE_CONTENTS = "<html><body><p>Hello, World!</p></body></html>";
