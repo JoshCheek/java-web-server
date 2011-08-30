@@ -1,3 +1,6 @@
+import joshcheek.server.HTTPServer;
+import joshcheek.server.SocketService;
+
 /**
  * Created by IntelliJ IDEA.
  * User: joshuajcheek
@@ -22,14 +25,14 @@ public class HTTPServerTest extends junit.framework.TestCase {
 
     // primarily getting interface expectations from http://www.w3.org/Protocols/HTTP/HTTP2.html
 
-    public void testRecognizesSimpleGetRequests() throws Exception {
-        connect("GET /");
-        assertEquals("GET", request().method());
-    }
-
-    private Request request() {
-        return server.lastRequest();
-    }
+//    public void testRecognizesSimpleGetRequests() throws Exception {
+//        connect("GET /");
+//        assertEquals("GET", request().method());
+//    }
+//
+//    private Request request() {
+//        return server.lastRequest();
+//    }
 
     private void connect(String requestLine) throws Exception {
 
