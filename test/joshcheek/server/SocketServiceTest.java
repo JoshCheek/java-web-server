@@ -1,7 +1,8 @@
-import joshcheek.server.SocketServer;
-import joshcheek.server.SocketService;
+package joshcheek.server;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.net.Socket;
 
 /**

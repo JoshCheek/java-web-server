@@ -1,5 +1,4 @@
-import joshcheek.server.SocketServer;
-import joshcheek.server.SocketService;
+package joshcheek.server;
 
 import java.io.*;
 import java.net.Socket;
