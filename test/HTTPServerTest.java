@@ -1,3 +1,5 @@
+import joshcheek.server.HTTPRequestHandlerFactory;
+import joshcheek.server.HTTPRequestHandlerMock;
 import joshcheek.server.HTTPServer;
 import joshcheek.server.SocketService;
 
@@ -24,11 +26,18 @@ public class HTTPServerTest extends junit.framework.TestCase {
                                                 "Content-Length: 32\r\n" +
                                                 "\r\n" +
                                                 "home=Cosby&favorite+flavor=flies\r\n";
+    private HTTPRequestHandlerMock request;
 
     public void setUp() throws Exception {
+        setTestMode();
         setSocketService();
         setServer();
         serveServer();
+    }
+
+    private void setTestMode() {
+        request = new HTTPRequestHandlerMock();
+        HTTPRequestHandlerFactory.handleWith(request);
     }
 
     public void tearDown() throws Exception {
@@ -40,16 +49,19 @@ public class HTTPServerTest extends junit.framework.TestCase {
 
     public void testRecognizesGetRequests() throws Exception {
         connect(GET_REQUEST);
-        assertEquals("GET",         server.requestMethod());
-        assertEquals("/",           server.requestURI());
-        assertEquals("HTTP/1.1",    server.requestProtocolVersion());
+        assertEquals(GET_REQUEST, request.fullMessage());
     }
 
     public void testRecognizesPostRequest() throws Exception {
         connect(POST_REQUEST);
-        assertEquals("POST",                server.requestMethod());
-        assertEquals("/path/script.cgi",    server.requestURI());
-        assertEquals("HTTP/1.0",            server.requestProtocolVersion());
+        assertEquals(POST_REQUEST, request.fullMessage());
+    }
+
+    private void connect(String requestLine) throws Exception {
+        Socket socket = new Socket("localhost", PORT);
+        writeToServer(socket, requestLine);
+        socket.close();
+        Thread.sleep(600);
     }
 
     private void serveServer() throws Exception {
@@ -66,13 +78,6 @@ public class HTTPServerTest extends junit.framework.TestCase {
 
     private void stopServingServer() throws Exception {
         ss.close();
-    }
-
-    private void connect(String requestLine) throws Exception {
-        Socket socket = new Socket("localhost", PORT);
-        writeToServer(socket, requestLine);
-        socket.close();
-        Thread.sleep(600);
     }
 
     private void writeToServer(Socket socket, String toWrite) throws IOException {
