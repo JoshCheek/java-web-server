@@ -1,9 +1,6 @@
 package joshcheek.server;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.PrintStream;
-import java.io.StringReader;
 
 /**
  * Created by IntelliJ IDEA.
@@ -14,37 +11,31 @@ import java.io.StringReader;
  */
 public class HTTPRequestHandlerImp implements HTTPRequestHandler {
 
-    private String requestMethod;
-    private String requestURI;
-    private String requestProtocolVersion;
+    private HTTPInteraction interaction;
+    private String content = "";
 
-    public void handle(BufferedReader reader, PrintStream writer) throws IOException {
-        processHeader(reader);
-    }
-
-    public void handle(String request, PrintStream writer) throws IOException {
-        StringReader stringReader = new StringReader(request);
-        BufferedReader reader = new BufferedReader(stringReader);
-        handle(reader, writer);
+    public void handle(HTTPInteraction interaction) throws IOException {
+        this.interaction = interaction;
+        writeContent();
     }
 
     public String method() {
-        return requestMethod;
+        return interaction.method();
     }
 
     public String uri() {
-        return requestURI;
+        return interaction.uri();
     }
 
     public String protocolVersion() {
-        return requestProtocolVersion;
+        return interaction.protocolVersion();
     }
 
-    private void processHeader(BufferedReader reader) throws IOException {
-        String[] firstLine = reader.readLine().split(" ");
-        requestMethod           = firstLine[0];
-        requestURI              = firstLine[1];
-        requestProtocolVersion  = firstLine[2];
+    public void setContent(String content) {
+        this.content = content;
     }
 
+    private void writeContent() {
+        interaction.writeContent(content);
+    }
 }

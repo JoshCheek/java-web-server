@@ -1,8 +1,6 @@
 package joshcheek.server;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
+import java.io.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -11,8 +9,8 @@ import java.io.PrintStream;
  * Time: 7:53 AM
  * To change this template use File | Settings | File Templates.
  */
-public class HTTPRequestHandlerImpTest extends junit.framework.TestCase {
-    private HTTPRequestHandlerImp handler;
+public class HTTPInteractionTest extends junit.framework.TestCase {
+    private HTTPInteraction interaction;
     private static final String GET_REQUEST  =  "GET / HTTP/1.1\r\n\r\n";
     private static final String POST_REQUEST =  "POST /path/script.cgi HTTP/1.0\r\n" +
                                                 "From: frog@jmarshall.com\r\n" +
@@ -24,21 +22,24 @@ public class HTTPRequestHandlerImpTest extends junit.framework.TestCase {
 
     public void testRecognizesGetRequests() throws Exception {
         handle(GET_REQUEST);
-        assertEquals("GET",         handler.method());
-        assertEquals("/",           handler.uri());
-        assertEquals("HTTP/1.1",    handler.protocolVersion());
+        assertEquals("GET",         interaction.method());
+        assertEquals("/",           interaction.uri());
+        assertEquals("HTTP/1.1",    interaction.protocolVersion());
     }
 
     public void testRecognizesPostRequest() throws Exception {
         handle(POST_REQUEST);
-        assertEquals("POST",                handler.method());
-        assertEquals("/path/script.cgi",    handler.uri());
-        assertEquals("HTTP/1.0",            handler.protocolVersion());
+        assertEquals("POST",                interaction.method());
+        assertEquals("/path/script.cgi",    interaction.uri());
+        assertEquals("HTTP/1.0",            interaction.protocolVersion());
     }
 
     private void handle(String request) throws IOException {
-        handler = new HTTPRequestHandlerImp();
-        handler.handle(request, mockWriter());
+        interaction = new HTTPInteraction(mockReader(request), mockWriter());
+    }
+
+    private BufferedReader mockReader(String request) {
+        return new BufferedReader(new StringReader(request));
     }
 
     private PrintStream mockWriter() {

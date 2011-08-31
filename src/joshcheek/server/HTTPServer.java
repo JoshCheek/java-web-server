@@ -14,8 +14,22 @@ import java.net.Socket;
  */
 public class HTTPServer implements SocketServer {
 
+    private HTTPRequestHandlerFactory dispensary;
+
+    public HTTPServer(HTTPRequestHandlerFactory dispensary) {
+        this.dispensary = dispensary;
+    }
+
     public void serve(Socket socket) throws IOException {
-        handler().handle(reader(socket), writer(socket));
+        handler().handle(interactionFor(socket));
+    }
+
+    private HTTPInteraction interactionFor(Socket socket) throws IOException {
+        return new HTTPInteraction(reader(socket), writer(socket));
+    }
+
+    private HTTPRequestHandler handler() {
+        return dispensary.getHandler();
     }
 
     private PrintStream writer(Socket socket) throws IOException {
@@ -26,8 +40,5 @@ public class HTTPServer implements SocketServer {
         return SocketService.getBufferedReader(socket);
     }
 
-    private HTTPRequestHandler handler() {
-        return HTTPRequestHandlerFactory.getHandler();
-    }
 
 }
