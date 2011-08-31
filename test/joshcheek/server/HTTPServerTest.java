@@ -20,14 +20,8 @@ public class HTTPServerTest extends junit.framework.TestCase {
     public  static final int    PORT = SocketServiceTest.PORT;
     private SocketService       ss;
     private HTTPServer          server;
-    private static final String GET_REQUEST="GET / HTTP/1.1\r\n\r\n";
-    private static final String POST_REQUEST =  "POST /path/script.cgi HTTP/1.0\r\n" +
-                                                "From: frog@jmarshall.com\r\n" +
-                                                "User-Agent: HTTPTool/1.0\r\n" +
-                                                "Content-Type: application/x-www-form-urlencoded\r\n" +
-                                                "Content-Length: 32\r\n" +
-                                                "\r\n" +
-                                                "home=Cosby&favorite+flavor=flies\r\n\r\n";
+    private static final String REQUEST="GET / HTTP/1.1\r\n\r\n";
+
     private String response="";
     private static HTTPRequestHandlerImp handler=null;
     private static String stubbedContent="";
@@ -42,21 +36,15 @@ public class HTTPServerTest extends junit.framework.TestCase {
         stopServingServer();
     }
 
-    public void testForwardsGetRequests() throws Exception {
-        connect(GET_REQUEST);
-        assertContains("GET", handler.method());
+    public void testForwardsRequestsToHandler() throws Exception {
+        connect(REQUEST);
+        assertEquals("GET", handler.method());
     }
 
-    public void testForwardsPostRequests() throws Exception {
-        connect(POST_REQUEST);
-        assertContains("POST", handler.method());
-    }
-
-    public void testHandlerCanRespond() throws Exception {
-        connect(GET_REQUEST, "this is the response");
+    public void testHandlersResponseIsReturned() throws Exception {
+        connect(REQUEST, "this is the response");
         assertContains("this is the response", response);
     }
-
 
 
     private void assertContains(String shouldSee, String fullString) {

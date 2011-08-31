@@ -24,6 +24,7 @@ public class HTTPServer implements SocketServer {
         handler().handle(interactionFor(socket));
     }
 
+
     private HTTPInteraction interactionFor(Socket socket) throws IOException {
         return new HTTPInteraction(reader(socket), writer(socket));
     }

@@ -34,6 +34,8 @@ public class HTTPInteractionTest extends junit.framework.TestCase {
         assertEquals("HTTP/1.0",            interaction.protocolVersion());
     }
 
+
+
     private void handle(String request) throws IOException {
         interaction = new HTTPInteraction(mockReader(request), mockWriter());
     }
