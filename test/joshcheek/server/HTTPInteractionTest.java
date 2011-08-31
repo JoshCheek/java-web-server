@@ -35,16 +35,17 @@ public class HTTPInteractionTest extends junit.framework.TestCase {
         assertEquals("HTTP/1.0",            interaction.protocolVersion());
     }
 
-//    public void testResponseDefaultsToHTTP1_1With200() throws IOException {
-//        handle(GET_REQUEST);
-//        assertEquals("HTTP/1.1 200 \r\n", firstLineOfResponse());
-//    }
+    public void testResponseDefaultsToHTTP1_1With200() throws IOException {
+        handle(GET_REQUEST);
+        interaction.writeResponse();
+        assertEquals("HTTP/1.1 200 \r\n", firstLineOfResponse());
+    }
 
 
 
     private String firstLineOfResponse() {
         String written = output.toString();
-        return written.substring(0, written.indexOf("\n"));
+        return written.substring(0, written.indexOf("\n")+1);
     }
 
     private void handle(String request) throws IOException {

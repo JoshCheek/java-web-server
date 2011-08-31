@@ -19,6 +19,8 @@ public class HTTPInteraction {
     private String content;
     private PrintStream writer = null;
     private BufferedReader reader = null;
+    private static final String SP = " ";
+    private static final String CRLF = "\r\n";
 
     public HTTPInteraction(BufferedReader reader, PrintStream writer) throws IOException {
         this.reader = reader;
@@ -50,6 +52,26 @@ public class HTTPInteraction {
     }
 
     public void writeResponse() {
-        writer.print(content);
+        writer.print(response());
+    }
+
+    public String response() {
+        return statusLine() + content;
+    }
+
+    private String statusLine() {
+        return httpVersion() + SP + statusCode() + SP + reasonPhrase() + CRLF;
+    }
+
+    private String reasonPhrase() {
+        return "";
+    }
+
+    private String statusCode() {
+        return "200";
+    }
+
+    private String httpVersion() {
+        return "HTTP/1.1";
     }
 }
