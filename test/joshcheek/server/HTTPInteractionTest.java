@@ -19,6 +19,7 @@ public class HTTPInteractionTest extends junit.framework.TestCase {
                                                 "Content-Length: 32\r\n" +
                                                 "\r\n" +
                                                 "home=Cosby&favorite+flavor=flies\r\n\r\n";
+    private ByteArrayOutputStream output =null;
 
     public void testRecognizesGetRequests() throws Exception {
         handle(GET_REQUEST);
@@ -34,7 +35,17 @@ public class HTTPInteractionTest extends junit.framework.TestCase {
         assertEquals("HTTP/1.0",            interaction.protocolVersion());
     }
 
+//    public void testResponseDefaultsToHTTP1_1With200() throws IOException {
+//        handle(GET_REQUEST);
+//        assertEquals("HTTP/1.1 200 \r\n", firstLineOfResponse());
+//    }
 
+
+
+    private String firstLineOfResponse() {
+        String written = output.toString();
+        return written.substring(0, written.indexOf("\n"));
+    }
 
     private void handle(String request) throws IOException {
         interaction = new HTTPInteraction(mockReader(request), mockWriter());
@@ -45,7 +56,8 @@ public class HTTPInteractionTest extends junit.framework.TestCase {
     }
 
     private PrintStream mockWriter() {
-        return new PrintStream(new ByteArrayOutputStream());
+        output = new ByteArrayOutputStream();
+        return new PrintStream(output);
     }
 
 }

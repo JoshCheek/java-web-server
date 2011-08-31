@@ -21,7 +21,9 @@ public class HTTPServer implements SocketServer {
     }
 
     public void serve(Socket socket) throws IOException {
-        handler().handle(interactionFor(socket));
+        HTTPInteraction interaction = interactionFor(socket);
+        handler().handle(interaction);
+        interaction.writeResponse();
     }
 
 

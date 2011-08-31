@@ -16,6 +16,7 @@ public class HTTPInteraction {
     private String requestMethod;
     private String requestURI;
     private String requestProtocolVersion;
+    private String content;
     private PrintStream writer = null;
     private BufferedReader reader = null;
 
@@ -44,7 +45,11 @@ public class HTTPInteraction {
         requestProtocolVersion  = firstLine[2];
     }
 
-    public void writeContent(String content) {
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public void writeResponse() {
         writer.print(content);
     }
 }

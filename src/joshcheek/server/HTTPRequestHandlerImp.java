@@ -16,7 +16,7 @@ public class HTTPRequestHandlerImp implements HTTPRequestHandler {
 
     public void handle(HTTPInteraction interaction) throws IOException {
         this.interaction = interaction;
-        writeContent();
+        setContent();
     }
 
     public String method() {
@@ -35,7 +35,7 @@ public class HTTPRequestHandlerImp implements HTTPRequestHandler {
         this.content = content;
     }
 
-    private void writeContent() {
-        interaction.writeContent(content);
+    private void setContent() {
+        interaction.setContent(content);
     }
 }
