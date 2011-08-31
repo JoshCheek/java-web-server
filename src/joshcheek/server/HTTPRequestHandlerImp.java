@@ -2,6 +2,7 @@ package joshcheek.server;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.StringReader;
 
 /**
@@ -17,14 +18,14 @@ public class HTTPRequestHandlerImp implements HTTPRequestHandler {
     private String requestURI;
     private String requestProtocolVersion;
 
-    public void handle(BufferedReader reader) throws IOException {
+    public void handle(BufferedReader reader, PrintStream writer) throws IOException {
         processHeader(reader);
     }
 
-    public void handle(String request) throws IOException {
+    public void handle(String request, PrintStream writer) throws IOException {
         StringReader stringReader = new StringReader(request);
         BufferedReader reader = new BufferedReader(stringReader);
-        handle(reader);
+        handle(reader, writer);
     }
 
     public String method() {

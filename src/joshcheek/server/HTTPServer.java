@@ -2,6 +2,7 @@ package joshcheek.server;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.Socket;
 
 /**
@@ -14,7 +15,11 @@ import java.net.Socket;
 public class HTTPServer implements SocketServer {
 
     public void serve(Socket socket) throws IOException {
-        handler().handle(reader(socket));
+        handler().handle(reader(socket), writer(socket));
+    }
+
+    private PrintStream writer(Socket socket) throws IOException {
+        return SocketService.getPrintStream(socket);
     }
 
     private BufferedReader reader(Socket socket) throws IOException {

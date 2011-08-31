@@ -2,6 +2,7 @@ package joshcheek.server;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.PrintStream;
 
 /**
  * Created by IntelliJ IDEA.
@@ -11,5 +12,5 @@ import java.io.IOException;
  * To change this template use File | Settings | File Templates.
  */
 public interface HTTPRequestHandler {
-    public void   handle(BufferedReader reader) throws IOException;
+    public void   handle(BufferedReader reader, PrintStream writer) throws IOException;
 }
