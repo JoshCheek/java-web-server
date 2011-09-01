@@ -153,6 +153,7 @@ public class HTTPInteraction {
         }
 
         public void setContent(String content) {
+            if(content == null) content = "";
             setHeader("Content-Length", content.length());
             this.content = content;
         }

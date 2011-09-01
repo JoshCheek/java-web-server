@@ -133,6 +133,21 @@ public class WebFrameworkTest extends junit.framework.TestCase  {
         assertEquals("Hello, world!", interaction.getContent());
     }
 
+    public void testNoContentIfControllerReturnsNull() {
+        WebFramework app = new WebFramework(1234) {
+            public void defineRoutes() {
+                new PostRequest("/index") {
+                    public String controller() {
+                        return null;
+                    }
+                };
+            }
+        };
+        HTTPInteraction interaction = interactionFor(app, "POST", "/index");
+        assertEquals("", interaction.getContent());
+        assertEquals("0", interaction.headerFor("Content-Length"));
+    }
+
 
     public String output() {
         return output.toString();
