@@ -3,6 +3,8 @@ package joshcheek.server;
 import joshcheek.server.webFramework.WebFramework;
 
 import java.io.*;
+import java.net.Socket;
+import java.util.regex.Pattern;
 
 /**
  * Created by IntelliJ IDEA.
@@ -14,8 +16,8 @@ import java.io.*;
 public class WebFrameworkTest extends junit.framework.TestCase  {
     private ByteArrayOutputStream output;
 
-    public void testICanUseTheWebFrameworkLikeThis() {
-        WebFramework greetingApp = new WebFramework(8081) {
+    public void testICanUseTheWebFrameworkLikeThis() throws Exception {
+        WebFramework greetingApp = new WebFramework(8082) {
             public void defineRoutes() {
                 new GetRequest("/index") {
                     public String controller() {
@@ -28,20 +30,22 @@ public class WebFrameworkTest extends junit.framework.TestCase  {
         };
 
         // ensure everything is set up properly
-        assertEquals(8081, greetingApp.port());
+        assertEquals(8082, greetingApp.port());
         assertTrue(greetingApp.doesItRespondTo("GET", "/index"));
         assertFalse(greetingApp.doesItRespondTo("GET", "/foobar"));
 
-//        // can we run it?
-//        assertFalse(greetingApp.isRunning());
-//        greetingApp.startRunning();
-//        assertTrue(greetingApp.isRunning());
-//        greetingApp.stopRunning();
-//        assertFalse(greetingApp.isRunning());
-//
-//        // do the requests work right?
-//        assertResponds(greetingApp, "/index", 418, "Hello, world!", "Content-Type", "text/plain");
-//        assertResponds(greetingApp, "/foobar", 404);
+        // can we run it?
+        assertFalse(greetingApp.isRunning());
+        greetingApp.startRunning();
+        assertTrue(greetingApp.isRunning());
+        greetingApp.stopRunning();
+        assertFalse(greetingApp.isRunning());
+
+        // do the requests work right?
+        greetingApp.startRunning();
+        assertResponds(greetingApp, "/index", 418, "Hello, world!", "Content-Type", "text/plain");
+        assertResponds(greetingApp, "/foobar", 404);
+        greetingApp.stopRunning();
     }
 
     public void testAWebFrameworkTakesItsPort() {
@@ -102,6 +106,19 @@ public class WebFrameworkTest extends junit.framework.TestCase  {
         assertTrue(100 == interactionFor(app, "POST", "/index").getStatus());
     }
 
+    public void testStatusDefaultsTo200IfFoundAnd404IfNotFound() {
+        WebFramework app = new WebFramework(1234) {
+            public void defineRoutes() {
+                new GetRequest("/index") {
+                    public String controller() { return ""; }
+                };
+            }
+        };
+        assertTrue(200 == interactionFor(app, "GET",  "/index").getStatus());
+        assertTrue(404 == interactionFor(app, "GET", "/foobar").getStatus());
+
+    }
+
     public void testControllerCanSetTheHeaders() {
         WebFramework app = new WebFramework(1234) {
             public void defineRoutes() {
@@ -149,6 +166,10 @@ public class WebFrameworkTest extends junit.framework.TestCase  {
     }
 
 
+
+
+
+
     public String output() {
         return output.toString();
     }
@@ -175,5 +196,65 @@ public class WebFrameworkTest extends junit.framework.TestCase  {
     private PrintStream mockWriter() {
         output = new ByteArrayOutputStream();
         return new PrintStream(output);
+    }
+
+    private void assertResponds(WebFramework app, String uri, int status, String content, String ... headers) throws Exception {
+        Socket socket = getSocket(app);
+        sendRequest(socket, uri);
+        Thread.sleep(300);
+        String response = getResponse(socket);
+        assertHasStatus(response, status);
+        assertHasContent(response, content);
+        assertHasHeaders(response, headers);
+        socket.close();
+    }
+
+    private void assertResponds(WebFramework app, String uri, int status) throws Exception {
+        Socket socket = getSocket(app);
+        sendRequest(socket, uri);
+        Thread.sleep(300);
+        String response = getResponse(socket);
+        assertHasStatus(response, status);
+        socket.close();
+    }
+
+    private void assertHasStatus(String response, int status) {
+        String firstLine = response.substring(0, response.indexOf('\n'));
+        assertMatches(Integer.toString(status), firstLine);
+    }
+
+    private void sendRequest(Socket socket, String uri) throws IOException {
+        PrintStream writer = SocketService.getPrintStream(socket);
+        writer.print("GET " + uri + " HTTP/1.1\r\n\r\n");
+    }
+
+    private Socket getSocket(WebFramework app) throws IOException {
+        return new Socket("localhost", app.port());
+    }
+
+    private String getResponse(Socket socket) throws IOException {
+        BufferedReader reader = SocketService.getBufferedReader(socket);
+        String answer = "";
+        for(int c; (c=reader.read()) != -1; )
+            answer += Character.toString((char) c);
+        return answer;
+    }
+
+    private void assertHasHeaders(String response, String[] headers) {
+        for(int i=0; i<headers.length; i += 2)
+            assertMatches(regexFor(headers[i], headers[i+1]), response);
+    }
+
+    private String regexFor(String key, String value) {
+        return key + ":\\s+" + value + "\r\n";
+    }
+
+    private void assertHasContent(String response, String content) {
+        assertTrue(response.endsWith(content));
+    }
+
+    private void assertMatches(String regex, String toMatch) {
+        boolean doesMatch = Pattern.compile(".*" + regex + ".*", Pattern.DOTALL).matcher(toMatch).matches();
+        assertTrue("Expected \"" + output + "\" to match /" + regex+"/", doesMatch);
     }
 }

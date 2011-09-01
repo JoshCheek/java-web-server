@@ -1,7 +1,8 @@
 package joshcheek.server.webFramework;
 
-import joshcheek.server.HTTPInteraction;
+import joshcheek.server.*;
 
+import java.io.IOException;
 import java.util.HashMap;
 
 /**
@@ -15,6 +16,8 @@ public abstract class WebFramework {
     private int port;
     private HashMap<String,HashMap<String,AbstractRequest>> routes =
         new HashMap<String,HashMap<String,AbstractRequest>>();
+    private boolean running = false;
+    private SocketService socketService;;
 
     public WebFramework(int port) {
         this.port = port;
@@ -51,8 +54,49 @@ public abstract class WebFramework {
 
     private AbstractRequest requestFor(String method, String uri) {
         HashMap<String, AbstractRequest> methodsRoutes = routes.get(method);
-        if(methodsRoutes == null) return null;
-        return methodsRoutes.get(uri);
+        if(methodsRoutes == null) return new FourOhFourRequest();
+        AbstractRequest request = methodsRoutes.get(uri);
+        if(request == null) return new FourOhFourRequest();
+        return request;
+    }
+
+    public boolean isRunning() {
+        return running;
+    }
+
+    public void startRunning() throws IOException {
+        if(isRunning()) return;
+        socketService = new SocketService();
+        socketService.serve(port(), getServer());
+        running = true;
+    }
+
+    public void stopRunning() {
+        if(!isRunning()) return;
+        try { socketService.close(); } catch (Exception e) {}
+        running = false;
+    }
+
+    public HTTPServer getServer() {
+        return new HTTPServer(getHandlerFactory());
+    }
+
+
+    private HTTPRequestHandlerFactory getHandlerFactory() {
+        final WebFramework that = this;
+        return new HTTPRequestHandlerFactory() {
+            public HTTPRequestHandler getHandler() throws IOException {
+                return that.new RequestHandler();
+            }
+        };
+    }
+
+    private class RequestHandler implements HTTPRequestHandler {
+        public void handle(HTTPInteraction interaction) throws IOException {
+            AbstractRequest request = requestFor(interaction.requestMethod(), interaction.requestUri());
+            request.respondTo(interaction);
+            interaction.writeResponse();
+        }
     }
 
 
@@ -60,13 +104,17 @@ public abstract class WebFramework {
         private String uri;
         private HTTPInteraction interaction;
 
+        public abstract String controller();
+        public abstract String method();
+
         public AbstractRequest(String uri) {
             this.uri = uri;
             register(this);
         }
-        public abstract String controller();
 
-        public abstract String method();
+        public AbstractRequest() {
+            // non registering version
+        }
 
         public String uri() {
             return uri;
@@ -105,6 +153,17 @@ public abstract class WebFramework {
 
         public String method() {
             return "POST";
+        }
+    }
+
+    private class FourOhFourRequest extends AbstractRequest {
+        public String controller() {
+            setStatus(404);
+            return null;
+        }
+
+        public String method() {
+            return "NONE";
         }
     }
 }

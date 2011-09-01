@@ -31,7 +31,7 @@ public class SocketService {
         return new PrintStream(s.getOutputStream());
     }
 
-    public void serve(int port, SocketServer server) throws Exception {
+    public void serve(int port, SocketServer server) throws IOException {
         itsServer    = server;
         serverSocket = new ServerSocket(port);
         serverThread = makeServerThread();

@@ -16,8 +16,8 @@ public class HTTPServer implements SocketServer {
 
     private HTTPRequestHandlerFactory factory;
 
-    public HTTPServer(HTTPRequestHandlerFactory dispensary) {
-        this.factory = dispensary;
+    public HTTPServer(HTTPRequestHandlerFactory factory) {
+        this.factory = factory;
     }
 
     public void serve(Socket socket) throws IOException {
