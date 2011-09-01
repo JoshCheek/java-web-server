@@ -14,17 +14,12 @@ import java.util.HashMap;
  */
 public class HTTPInteraction {
 
-
-
-    private String content="";
-    private PrintStream writer = null;
     private static final String SP = " ";
     private static final String CRLF = "\r\n";
-    private int status=200;
-    private static HashMap<Integer, String> knownCodes = new HashMap<Integer, String>();
-    private HashMap<String, String> headers = new HashMap<String, String>();
     private RequestProcessor requestProcessor;
+    private ResponseProcessor responseProcessor;
 
+    private static HashMap<Integer, String> knownCodes = new HashMap<Integer, String>();
     static {
         knownCodes.put(100, "Continue");
         knownCodes.put(101, "Switching Protocols");
@@ -91,7 +86,7 @@ public class HTTPInteraction {
 
     public HTTPInteraction(BufferedReader reader, PrintStream writer) throws IOException {
         requestProcessor = new RequestProcessor(reader);
-        this.writer = writer;
+        responseProcessor = new ResponseProcessor(writer);
     }
 
     public String requestMethod() {
@@ -104,6 +99,86 @@ public class HTTPInteraction {
 
     public String requestProtocolVersion() {
         return requestProcessor.protocolVersion();
+    }
+
+    public void setContent(String content) {
+        responseProcessor.setContent(content);
+    }
+
+    public void writeResponse() {
+        responseProcessor.writeResponse();
+    }
+
+    public void setHeader(String key, Object value) {
+        responseProcessor.setHeader(key, value);
+    }
+
+    public void setStatus(int code) {
+        responseProcessor.setStatus(code);
+    }
+
+
+    public class ResponseProcessor {
+        private HashMap<String, String> headers = new HashMap<String, String>();
+        private int                     status  = 200;
+        private String                  content = "";
+        private PrintStream             writer;
+
+        public ResponseProcessor(PrintStream writer) {
+            this.writer = writer;
+        }
+
+
+        public void setContent(String content) {
+            this.content = content;
+        }
+
+        public void writeResponse() {
+            writer.print(response());
+        }
+
+        public String response() {
+            return statusLine() + headers() + content;
+        }
+
+        private String headers() {
+            String toReturn = "";
+            for (String key : headers.keySet())
+                toReturn += key + ": " + headers.get(key) + CRLF;
+            return toReturn;
+        }
+
+        private String statusLine() {
+            return httpVersion() + SP + statusCode() + SP + reasonPhrase() + CRLF;
+        }
+
+        private String reasonPhrase() {
+            return statusMessageFor(statusCode());
+        }
+
+        private String statusMessageFor(int code) {
+            if (knownCodes.containsKey(code))
+                return knownCodes.get(code);
+            else
+                return "";
+        }
+
+        private int statusCode() {
+            return status;
+        }
+
+        private String httpVersion() {
+            return "HTTP/1.1";
+        }
+
+        public void setStatus(int status) {
+            this.status = status;
+        }
+
+        // value must implement toString
+        public void setHeader(String key, Object value) {
+            headers.put(key, value.toString());
+        }
     }
 
 
@@ -136,54 +211,4 @@ public class HTTPInteraction {
         }
     }
 
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public void writeResponse() {
-        writer.print(response());
-    }
-
-    public String response() {
-        return statusLine() + headers() + content;
-    }
-
-    private String headers() {
-        String toReturn = "";
-        for (String key : headers.keySet())
-            toReturn += key + ": " + headers.get(key) + CRLF;
-        return toReturn;
-    }
-
-    private String statusLine() {
-        return httpVersion() + SP + statusCode() + SP + reasonPhrase() + CRLF;
-    }
-
-    private String reasonPhrase() {
-        return statusMessageFor(statusCode());
-    }
-
-    private String statusMessageFor(int code) {
-        if(knownCodes.containsKey(code))
-            return knownCodes.get(code);
-        else
-            return "";
-    }
-
-    private int statusCode() {
-        return status;
-    }
-
-    private String httpVersion() {
-        return "HTTP/1.1";
-    }
-
-    public void setStatus(int status) {
-        this.status = status;
-    }
-
-    // value must implement toString
-    public void setHeader(String key, Object value) {
-        headers.put(key, value.toString());
-    }
 }
