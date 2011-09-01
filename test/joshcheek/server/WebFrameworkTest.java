@@ -48,24 +48,26 @@ public class WebFrameworkTest extends junit.framework.TestCase  {
         assertEquals(1234, app.port());
     }
 
-    public void testHasNoRoutesByDefault() {
-        WebFramework app = new WebFramework(8081) {
+    public void testRespondsToNoRoutesByDefault() {
+        WebFramework app = new WebFramework(1234) {
             public void defineRoutes() {}
         };
         assertFalse(app.respondTo("GET", "/"));
     }
 
-//    public void testHasNoRoutesByDefault() {
-//        WebFramework app = new WebFramework(8081) {
-//            public void defineRoutes() {
-//                new GetRequest("/index") {
-//                    public String controller() {
-//                        return "";
-//                    }
-//                };
-//            }
-//        };
-//        assertArrayEquals(new String[0], app.routes());
-//    }
+    public void testCanDefineRoutesForGetRequests() {
+        WebFramework app = new WebFramework(1234) {
+            public void defineRoutes() {
+                new GetRequest("/index") {
+                    public String controller() {
+                        return "";
+                    }
+                };
+            }
+        };
+        assertTrue(  app.respondTo("GET"  , "/index"));
+        assertFalse( app.respondTo("POST" , "/index"));
+        assertFalse( app.respondTo("GET"  , "/foobar"));
+    }
 
 }
