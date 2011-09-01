@@ -2,8 +2,6 @@ package joshcheek.server;
 
 import joshcheek.server.webFramework.WebFramework;
 
-import static org.junit.Assert.assertArrayEquals;
-
 /**
  * Created by IntelliJ IDEA.
  * User: joshuajcheek
@@ -54,6 +52,20 @@ public class WebFrameworkTest extends junit.framework.TestCase  {
         WebFramework app = new WebFramework(8081) {
             public void defineRoutes() {}
         };
-        assertArrayEquals(new String[0], app.routes());
+        assertFalse(app.respondTo("GET", "/"));
     }
+
+//    public void testHasNoRoutesByDefault() {
+//        WebFramework app = new WebFramework(8081) {
+//            public void defineRoutes() {
+//                new GetRequest("/index") {
+//                    public String controller() {
+//                        return "";
+//                    }
+//                };
+//            }
+//        };
+//        assertArrayEquals(new String[0], app.routes());
+//    }
+
 }

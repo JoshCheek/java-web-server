@@ -20,7 +20,7 @@ public abstract class WebFramework {
         return port;
     }
 
-    public String[] routes() {
-        return new String[0];
+    public boolean respondTo(String method, String uri) {
+        return false;
     }
 }
