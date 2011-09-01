@@ -119,6 +119,19 @@ public class WebFrameworkTest extends junit.framework.TestCase  {
         assertEquals("utf-8", interaction.headerFor("Accept-Charset"));
     }
 
+    public void testControllerReturnValueIsTheContent() {
+        WebFramework app = new WebFramework(1234) {
+            public void defineRoutes() {
+                new PostRequest("/index") {
+                    public String controller() {
+                        return "Hello, world!";
+                    }
+                };
+            }
+        };
+        HTTPInteraction interaction = interactionFor(app, "POST", "/index");
+        assertEquals("Hello, world!", interaction.getContent());
+    }
 
 
     public String output() {

@@ -74,7 +74,7 @@ public abstract class WebFramework {
 
         public void respondTo(HTTPInteraction interaction) {
             this.interaction = interaction;
-            controller();
+            interaction.setContent(controller());
         }
 
         protected void setStatus(int code) {
