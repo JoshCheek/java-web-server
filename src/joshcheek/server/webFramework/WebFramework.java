@@ -11,8 +11,8 @@ import java.util.HashMap;
  */
 public abstract class WebFramework {
     private int port;
-    private HashMap<String,HashMap<String,GetRequest>> routes =
-        new HashMap<String,HashMap<String,GetRequest>>();
+    private HashMap<String,HashMap<String,AbstractRequest>> routes =
+        new HashMap<String,HashMap<String,AbstractRequest>>();
 
     public WebFramework(int port) {
         this.port = port;
@@ -26,38 +26,59 @@ public abstract class WebFramework {
     }
 
     public boolean respondTo(String method, String uri) {
-        HashMap<String, GetRequest> methodsRoutes = routes.get(method);
+        HashMap<String, AbstractRequest> methodsRoutes = routes.get(method);
         if(methodsRoutes == null)
             return false;
         return methodsRoutes.containsKey(uri);
     }
 
-    public abstract class GetRequest {
+    private void register(AbstractRequest request) {
+        ensureCanRespondTo(request);
+        routes.get(request.method()).put(request.uri(), request);
+    }
+
+    private void ensureCanRespondTo(AbstractRequest request) {
+        String method = request.method();
+        if(routes.get(method) == null)
+            routes.put(method, new HashMap<String, AbstractRequest>());
+    }
+
+
+
+    public abstract class AbstractRequest {
         private String uri;
 
-        public GetRequest(String uri) {
+        public AbstractRequest(String uri) {
             this.uri = uri;
             register(this);
         }
         public abstract String controller();
 
-        public String method() {
-            return "GET";
-        }
+        public abstract String method();
 
         public String uri() {
             return uri;
         }
     }
 
-    private void register(GetRequest getRequest) {
-        ensureCanRespondTo(getRequest);
-        routes.get(getRequest.method()).put(getRequest.uri(), getRequest);
+    public abstract class GetRequest extends AbstractRequest {
+        public GetRequest(String uri) {
+            super(uri);
+        }
+
+        public String method() {
+            return "GET";
+        }
     }
 
-    private void ensureCanRespondTo(GetRequest getRequest) {
-        String method = getRequest.method();
-        if(routes.get(method) == null)
-            routes.put(method, new HashMap<String, GetRequest>());
+
+    public abstract class PostRequest extends AbstractRequest {
+        public PostRequest(String uri) {
+            super(uri);
+        }
+
+        public String method() {
+            return "POST";
+        }
     }
 }

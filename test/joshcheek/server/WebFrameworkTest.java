@@ -70,4 +70,18 @@ public class WebFrameworkTest extends junit.framework.TestCase  {
         assertFalse( app.respondTo("GET"  , "/foobar"));
     }
 
+    public void testCanDefineRoutesForPostRequests() {
+        WebFramework app = new WebFramework(1234) {
+            public void defineRoutes() {
+                new PostRequest("/index") {
+                    public String controller() {
+                        return "";
+                    }
+                };
+            }
+        };
+        assertTrue(  app.respondTo("POST" , "/index"));
+        assertFalse( app.respondTo("GET"  , "/index"));
+        assertFalse( app.respondTo("POST" , "/foobar"));
+    }
 }
