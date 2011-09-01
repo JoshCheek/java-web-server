@@ -139,7 +139,6 @@ public class HTTPInteractionTest extends junit.framework.TestCase {
         interaction.setHeader("abc", "def");
         interaction.setHeader("abc", "ghi");
         interaction.writeResponse();
-        System.out.println(output());
         assertMatches("abc:\\s+ghi\r\n", output());
         assertDoesntMatch("abc:\\s+def\r\n", output());
     }
