@@ -14,24 +14,24 @@ import java.io.*;
 public class WebFrameworkTest extends junit.framework.TestCase  {
     private ByteArrayOutputStream output;
 
-//    public void testICanUseTheWebFrameworkLikeThis() {
-//        WebFramework greetingApp = new WebFramework(8081) {
-//            public void defineRoutes() {
-//                new GetRequest("/index") {
-//                    public String controller() {
-//                        setResponseCode(418);
-//                        setHeader("Content-Type", "text/plain");
-//                        return "Hello, world!";
-//                    }
-//                }
-//            }
-//        }
-//
-//        // ensure everything is set up properly
-//        assertEquals(8081, greetingApp.port());
-//        assertTrue(greetingApp.respondTo("/index"));
-//        assertFalse(greetingApp.respondTo("/foobar"));
-//
+    public void testICanUseTheWebFrameworkLikeThis() {
+        WebFramework greetingApp = new WebFramework(8081) {
+            public void defineRoutes() {
+                new GetRequest("/index") {
+                    public String controller() {
+                        setStatus(418);
+                        setHeader("Content-Type", "text/plain");
+                        return "Hello, world!";
+                    }
+                };
+            }
+        };
+
+        // ensure everything is set up properly
+        assertEquals(8081, greetingApp.port());
+        assertTrue(greetingApp.doesItRespondTo("GET", "/index"));
+        assertFalse(greetingApp.doesItRespondTo("GET", "/foobar"));
+
 //        // can we run it?
 //        assertFalse(greetingApp.isRunning());
 //        greetingApp.startRunning();
@@ -42,7 +42,7 @@ public class WebFrameworkTest extends junit.framework.TestCase  {
 //        // do the requests work right?
 //        assertResponds(greetingApp, "/index", 418, "Hello, world!", "Content-Type", "text/plain");
 //        assertResponds(greetingApp, "/foobar", 404);
-//    }
+    }
 
     public void testAWebFrameworkTakesItsPort() {
         WebFramework app = new WebFramework(1234) {
