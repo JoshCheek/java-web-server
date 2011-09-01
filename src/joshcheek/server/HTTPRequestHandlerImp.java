@@ -20,15 +20,15 @@ public class HTTPRequestHandlerImp implements HTTPRequestHandler {
     }
 
     public String method() {
-        return interaction.method();
+        return interaction.requestMethod();
     }
 
     public String uri() {
-        return interaction.uri();
+        return interaction.requestUri();
     }
 
     public String protocolVersion() {
-        return interaction.protocolVersion();
+        return interaction.requestProtocolVersion();
     }
 
     public void setContent(String content) {

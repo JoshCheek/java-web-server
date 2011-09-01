@@ -14,17 +14,16 @@ import java.util.HashMap;
  */
 public class HTTPInteraction {
 
-    private String requestMethod;
-    private String requestURI;
-    private String requestProtocolVersion;
+
+
     private String content="";
     private PrintStream writer = null;
-    private BufferedReader reader = null;
     private static final String SP = " ";
     private static final String CRLF = "\r\n";
     private int status=200;
     private static HashMap<Integer, String> knownCodes = new HashMap<Integer, String>();
     private HashMap<String, String> headers = new HashMap<String, String>();
+    private RequestProcessor requestProcessor;
 
     static {
         knownCodes.put(100, "Continue");
@@ -91,21 +90,50 @@ public class HTTPInteraction {
     }
 
     public HTTPInteraction(BufferedReader reader, PrintStream writer) throws IOException {
-        this.reader = reader;
+        requestProcessor = new RequestProcessor(reader);
         this.writer = writer;
-        processHeader();
     }
 
-    public String method() {
-        return requestMethod;
+    public String requestMethod() {
+        return requestProcessor.method();
     }
 
-    public String uri() {
-        return requestURI;
+    public String requestUri() {
+        return requestProcessor.uri();
     }
 
-    public String protocolVersion() {
-        return requestProtocolVersion;
+    public String requestProtocolVersion() {
+        return requestProcessor.protocolVersion();
+    }
+
+
+    public class RequestProcessor {
+        private String requestMethod;
+        private String requestURI;
+        private String requestProtocolVersion;
+
+        public RequestProcessor(BufferedReader reader) throws IOException {
+            processHeader(reader);
+        }
+
+        public String method() {
+            return requestMethod;
+        }
+
+        public String uri() {
+            return requestURI;
+        }
+
+        public String protocolVersion() {
+            return requestProtocolVersion;
+        }
+
+        private void processHeader(BufferedReader reader) throws IOException {
+            String[] firstLine = reader.readLine().split(" ");
+            requestMethod = firstLine[0];
+            requestURI = firstLine[1];
+            requestProtocolVersion = firstLine[2];
+        }
     }
 
     public void setContent(String content) {
@@ -125,14 +153,6 @@ public class HTTPInteraction {
         for (String key : headers.keySet())
             toReturn += key + ": " + headers.get(key) + CRLF;
         return toReturn;
-    }
-
-
-    private void processHeader() throws IOException {
-        String[] firstLine = reader.readLine().split(" ");
-        requestMethod           = firstLine[0];
-        requestURI              = firstLine[1];
-        requestProtocolVersion  = firstLine[2];
     }
 
     private String statusLine() {

@@ -24,16 +24,16 @@ public class HTTPInteractionTest extends junit.framework.TestCase {
 
     public void testRecognizesGetRequests() throws Exception {
         handle(GET_REQUEST);
-        assertEquals("GET",         interaction.method());
-        assertEquals("/",           interaction.uri());
-        assertEquals("HTTP/1.1",    interaction.protocolVersion());
+        assertEquals("GET",         interaction.requestMethod());
+        assertEquals("/",           interaction.requestUri());
+        assertEquals("HTTP/1.1",    interaction.requestProtocolVersion());
     }
 
     public void testRecognizesPostRequest() throws Exception {
         handle(POST_REQUEST);
-        assertEquals("POST",                interaction.method());
-        assertEquals("/path/script.cgi",    interaction.uri());
-        assertEquals("HTTP/1.0",            interaction.protocolVersion());
+        assertEquals("POST",                interaction.requestMethod());
+        assertEquals("/path/script.cgi",    interaction.requestUri());
+        assertEquals("HTTP/1.0",            interaction.requestProtocolVersion());
     }
 
     public void testResponseDefaultsToHTTP1_1With200() throws IOException {
