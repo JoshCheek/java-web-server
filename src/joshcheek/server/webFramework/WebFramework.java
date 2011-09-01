@@ -19,4 +19,8 @@ public abstract class WebFramework {
     public int port() {
         return port;
     }
+
+    public String[] routes() {
+        return new String[0];
+    }
 }
