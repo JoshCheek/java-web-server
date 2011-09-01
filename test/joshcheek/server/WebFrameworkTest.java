@@ -1,5 +1,7 @@
 package joshcheek.server;
 
+import joshcheek.server.webFramework.WebFramework;
+
 /**
  * Created by IntelliJ IDEA.
  * User: joshuajcheek
@@ -38,4 +40,11 @@ public class WebFrameworkTest extends junit.framework.TestCase  {
 //        assertResponds(greetingApp, "/index", 418, "Hello, world!", "Content-Type", "text/plain");
 //        assertResponds(greetingApp, "/foobar", 404);
 //    }
+
+    public void testAWebFrameworkTakesItsPort() {
+        WebFramework app = new WebFramework(1234) {
+            public void defineRoutes() {}
+        };
+        assertEquals(1234, app.port());
+    }
 }
