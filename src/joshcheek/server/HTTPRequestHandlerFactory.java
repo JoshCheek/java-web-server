@@ -1,5 +1,7 @@
 package joshcheek.server;
 
+import java.io.IOException;
+
 /**
  * Created by IntelliJ IDEA.
  * User: joshuajcheek
@@ -8,5 +10,5 @@ package joshcheek.server;
  * To change this template use File | Settings | File Templates.
  */
 public interface HTTPRequestHandlerFactory {
-    HTTPRequestHandler getHandler();
+    HTTPRequestHandler getHandler() throws IOException;
 }

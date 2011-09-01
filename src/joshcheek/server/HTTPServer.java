@@ -14,10 +14,10 @@ import java.net.Socket;
  */
 public class HTTPServer implements SocketServer {
 
-    private HTTPRequestHandlerFactory dispensary;
+    private HTTPRequestHandlerFactory factory;
 
     public HTTPServer(HTTPRequestHandlerFactory dispensary) {
-        this.dispensary = dispensary;
+        this.factory = dispensary;
     }
 
     public void serve(Socket socket) throws IOException {
@@ -31,8 +31,8 @@ public class HTTPServer implements SocketServer {
         return new HTTPInteraction(reader(socket), writer(socket));
     }
 
-    private HTTPRequestHandler handler() {
-        return dispensary.getHandler();
+    private HTTPRequestHandler handler() throws IOException {
+        return factory.getHandler();
     }
 
     private PrintStream writer(Socket socket) throws IOException {
