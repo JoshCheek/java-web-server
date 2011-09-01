@@ -129,6 +129,10 @@ public class HTTPInteraction {
         return responseProcessor.headerFor(key);
     }
 
+    public String getContent() {
+        return responseProcessor.getContent();
+    }
+
 
     public class ResponseProcessor {
         private HashMap<String, String> headers = new HashMap<String, String>();
@@ -149,7 +153,12 @@ public class HTTPInteraction {
         }
 
         public void setContent(String content) {
+            setHeader("Content-Length", content.length());
             this.content = content;
+        }
+
+        public String getContent() {
+            return content;
         }
 
         public void writeResponse() {

@@ -154,6 +154,21 @@ public class HTTPInteractionTest extends junit.framework.TestCase {
         assertMatches("Content-Length:\\s+20\r\n", output());
     }
 
+    public void testCanSetContent() throws IOException {
+        handle(GET_REQUEST);
+        interaction.setContent("abcd");
+        assertEquals("abcd", interaction.getContent());
+        interaction.writeResponse();
+        assertMatches("abcd", output());
+    }
+
+    public void testSettingContentSetsTheContentLength() throws IOException {
+        handle(GET_REQUEST);
+        interaction.setContent("abcd");
+        interaction.writeResponse();
+        assertMatches("Content-Length:\\s+4\r\n", output());
+    }
+
     public void testContentTypeDefaultsToTextHtmlWithCharsetUtf8() throws IOException {
         assertDefaultHeader("Content-Type", "text/html;charset=utf-8");
     }
