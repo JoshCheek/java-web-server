@@ -48,6 +48,7 @@ public class HTTPInteractionTest extends junit.framework.TestCase {
         handle(GET_REQUEST);
         interaction.setStatus(104);
         interaction.writeResponse();
+        assertEquals(104, interaction.getStatus());
         assertEquals("HTTP/1.1 104 \r\n", firstLineOfResponse());
     }
 

@@ -1,5 +1,6 @@
 package joshcheek.server;
 
+import javax.net.ssl.SSLEngineResult;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -118,6 +119,10 @@ public class HTTPInteraction {
 
     public void setStatus(int code) {
         responseProcessor.setStatus(code);
+    }
+
+    public int getStatus() {
+        return responseProcessor.statusCode();
     }
 
 
