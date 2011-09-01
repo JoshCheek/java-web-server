@@ -17,13 +17,15 @@ public class HTTPInteraction {
     private String requestMethod;
     private String requestURI;
     private String requestProtocolVersion;
-    private String content;
+    private String content="";
     private PrintStream writer = null;
     private BufferedReader reader = null;
     private static final String SP = " ";
     private static final String CRLF = "\r\n";
     private int status=200;
     private static HashMap<Integer, String> knownCodes = new HashMap<Integer, String>();
+    private HashMap<String, String> headers = new HashMap<String, String>();
+
     static {
         knownCodes.put(100, "Continue");
         knownCodes.put(101, "Switching Protocols");
@@ -106,13 +108,6 @@ public class HTTPInteraction {
         return requestProtocolVersion;
     }
 
-    private void processHeader() throws IOException {
-        String[] firstLine = reader.readLine().split(" ");
-        requestMethod           = firstLine[0];
-        requestURI              = firstLine[1];
-        requestProtocolVersion  = firstLine[2];
-    }
-
     public void setContent(String content) {
         this.content = content;
     }
@@ -122,7 +117,22 @@ public class HTTPInteraction {
     }
 
     public String response() {
-        return statusLine() + content;
+        return statusLine() + headers() + content;
+    }
+
+    private String headers() {
+        String toReturn = "";
+        for (String key : headers.keySet())
+            toReturn += key + ": " + headers.get(key) + CRLF;
+        return toReturn;
+    }
+
+
+    private void processHeader() throws IOException {
+        String[] firstLine = reader.readLine().split(" ");
+        requestMethod           = firstLine[0];
+        requestURI              = firstLine[1];
+        requestProtocolVersion  = firstLine[2];
     }
 
     private String statusLine() {
@@ -150,5 +160,10 @@ public class HTTPInteraction {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    // value must implement toString
+    public void setHeader(String key, Object value) {
+        headers.put(key, value.toString());
     }
 }

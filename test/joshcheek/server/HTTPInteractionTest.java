@@ -1,6 +1,7 @@
 package joshcheek.server;
 
 import java.io.*;
+import java.util.regex.Pattern;
 
 /**
  * Created by IntelliJ IDEA.
@@ -123,6 +124,47 @@ public class HTTPInteractionTest extends junit.framework.TestCase {
         }
     }
 
+    public void testCanSetArbitraryHeaders() throws IOException {
+        handle(GET_REQUEST);
+        interaction.setHeader("abc", "def");
+        interaction.writeResponse();
+        assertMatches("abc:\\s+def\r\n", output());
+    }
+
+    public void testCanOverrideHeaders() throws IOException {
+        handle(GET_REQUEST);
+        interaction.setHeader("abc", "def");
+        interaction.setHeader("abc", "ghi");
+        interaction.writeResponse();
+        System.out.println(output());
+        assertMatches("abc:\\s+ghi\r\n", output());
+        assertDoesntMatch("abc:\\s+def\r\n", output());
+    }
+
+    public void testCanSetMultipleHeaders() throws IOException {
+        handle(GET_REQUEST);
+        interaction.setHeader("Allow", "GET HEAD PUT");
+        interaction.setHeader("Content-Length", 20);
+        interaction.writeResponse();
+        assertMatches("Allow:\\s+GET HEAD PUT\r\n", output());
+        assertMatches("Content-Length:\\s+20\r\n", output());
+    }
+
+
+
+    private String output() {
+        return output.toString();
+    }
+
+    private void assertMatches(String regex, String toMatch) {
+        boolean doesMatch = Pattern.compile(".*"+regex+".*", Pattern.DOTALL).matcher(toMatch).matches();
+        assertTrue("Expected \"" + output + "\" to match /" + regex+"/", doesMatch);
+    }
+
+    private void assertDoesntMatch(String regex, String toMatch) {
+        boolean doesMatch = Pattern.compile(".*" + regex + ".*", Pattern.DOTALL).matcher(toMatch).matches();
+        assertFalse("Expected \"" + output + "\" to NOT match /" + regex + "/", doesMatch);
+    }
 
     private String firstLineOfResponse() {
         String written = output.toString();
