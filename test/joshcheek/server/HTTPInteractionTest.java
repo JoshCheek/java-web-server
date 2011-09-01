@@ -149,6 +149,7 @@ public class HTTPInteractionTest extends junit.framework.TestCase {
         interaction.setHeader("Allow", "GET HEAD PUT");
         interaction.setHeader("Content-Length", 20);
         interaction.writeResponse();
+        assertEquals("GET HEAD PUT", interaction.headerFor("Allow"));
         assertMatches("Allow:\\s+GET HEAD PUT\r\n", output());
         assertMatches("Content-Length:\\s+20\r\n", output());
     }

@@ -125,6 +125,10 @@ public class HTTPInteraction {
         return responseProcessor.statusCode();
     }
 
+    public String headerFor(String key) {
+        return responseProcessor.headerFor(key);
+    }
+
 
     public class ResponseProcessor {
         private HashMap<String, String> headers = new HashMap<String, String>();
@@ -199,6 +203,10 @@ public class HTTPInteraction {
             SimpleDateFormat formatter = new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss z");
             Date now = Calendar.getInstance().getTime();
             return formatter.format(now);
+        }
+
+        public String headerFor(String key) {
+            return headers.get(key);
         }
     }
 
