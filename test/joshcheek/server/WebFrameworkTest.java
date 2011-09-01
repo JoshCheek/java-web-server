@@ -2,6 +2,8 @@ package joshcheek.server;
 
 import joshcheek.server.webFramework.WebFramework;
 
+import java.io.*;
+
 /**
  * Created by IntelliJ IDEA.
  * User: joshuajcheek
@@ -10,6 +12,7 @@ import joshcheek.server.webFramework.WebFramework;
  * To change this template use File | Settings | File Templates.
  */
 public class WebFrameworkTest extends junit.framework.TestCase  {
+    private ByteArrayOutputStream output;
 
 //    public void testICanUseTheWebFrameworkLikeThis() {
 //        WebFramework greetingApp = new WebFramework(8081) {
@@ -52,7 +55,7 @@ public class WebFrameworkTest extends junit.framework.TestCase  {
         WebFramework app = new WebFramework(1234) {
             public void defineRoutes() {}
         };
-        assertFalse(app.respondTo("GET", "/"));
+        assertFalse(app.doesItRespondTo("GET", "/"));
     }
 
     public void testCanDefineRoutesForGetRequests() {
@@ -65,9 +68,9 @@ public class WebFrameworkTest extends junit.framework.TestCase  {
                 };
             }
         };
-        assertTrue(  app.respondTo("GET"  , "/index"));
-        assertFalse( app.respondTo("POST" , "/index"));
-        assertFalse( app.respondTo("GET"  , "/foobar"));
+        assertTrue(  app.doesItRespondTo("GET"  , "/index"));
+        assertFalse( app.doesItRespondTo("POST" , "/index"));
+        assertFalse( app.doesItRespondTo("GET"  , "/foobar"));
     }
 
     public void testCanDefineRoutesForPostRequests() {
@@ -80,8 +83,52 @@ public class WebFrameworkTest extends junit.framework.TestCase  {
                 };
             }
         };
-        assertTrue(  app.respondTo("POST" , "/index"));
-        assertFalse( app.respondTo("GET"  , "/index"));
-        assertFalse( app.respondTo("POST" , "/foobar"));
+        assertTrue(  app.doesItRespondTo("POST" , "/index"));
+        assertFalse( app.doesItRespondTo("GET"  , "/index"));
+        assertFalse( app.doesItRespondTo("POST" , "/foobar"));
+    }
+
+    public void testControllerCanSetTheStatusCode() {
+        WebFramework app = new WebFramework(1234) {
+            public void defineRoutes() {
+                new PostRequest("/index") {
+                    public String controller() {
+                        setStatus(100);
+                        return "Hello, world!";
+                    }
+                };
+            }
+        };
+        assertTrue(100 == interactionFor(app, "POST", "/index").getStatus());
+    }
+
+
+
+    public String output() {
+        return output.toString();
+    }
+
+    private HTTPInteraction interactionFor(WebFramework app, String method, String uri) {
+        HTTPInteraction interaction = mockHTTPInteraction();
+        app.respondTo(method, uri, interaction);
+        return interaction;
+    }
+
+    private HTTPInteraction mockHTTPInteraction() {
+        try {
+            return new HTTPInteraction(mockReader(), mockWriter());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private BufferedReader mockReader() {
+        return new BufferedReader(new StringReader("GET / HTTP/1.1"));
+    }
+
+    private PrintStream mockWriter() {
+        output = new ByteArrayOutputStream();
+        return new PrintStream(output);
     }
 }

@@ -1,5 +1,7 @@
 package joshcheek.server.webFramework;
 
+import joshcheek.server.HTTPInteraction;
+
 import java.util.HashMap;
 
 /**
@@ -25,7 +27,7 @@ public abstract class WebFramework {
         return port;
     }
 
-    public boolean respondTo(String method, String uri) {
+    public boolean doesItRespondTo(String method, String uri) {
         HashMap<String, AbstractRequest> methodsRoutes = routes.get(method);
         if(methodsRoutes == null)
             return false;
@@ -43,10 +45,20 @@ public abstract class WebFramework {
             routes.put(method, new HashMap<String, AbstractRequest>());
     }
 
+    public void respondTo(String method, String uri, HTTPInteraction interaction) {
+        requestFor(method, uri).respondTo(interaction);
+    }
+
+    private AbstractRequest requestFor(String method, String uri) {
+        HashMap<String, AbstractRequest> methodsRoutes = routes.get(method);
+        if(methodsRoutes == null) return null;
+        return methodsRoutes.get(uri);
+    }
 
 
     public abstract class AbstractRequest {
         private String uri;
+        private HTTPInteraction interaction;
 
         public AbstractRequest(String uri) {
             this.uri = uri;
@@ -59,7 +71,17 @@ public abstract class WebFramework {
         public String uri() {
             return uri;
         }
+
+        public void respondTo(HTTPInteraction interaction) {
+            this.interaction = interaction;
+            controller();
+        }
+
+        protected void setStatus(int code) {
+            interaction.setStatus(code);
+        }
     }
+
 
     public abstract class GetRequest extends AbstractRequest {
         public GetRequest(String uri) {
