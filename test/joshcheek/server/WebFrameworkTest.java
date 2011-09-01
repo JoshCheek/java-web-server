@@ -102,6 +102,23 @@ public class WebFrameworkTest extends junit.framework.TestCase  {
         assertTrue(100 == interactionFor(app, "POST", "/index").getStatus());
     }
 
+    public void testControllerCanSetTheHeaders() {
+        WebFramework app = new WebFramework(1234) {
+            public void defineRoutes() {
+                new PostRequest("/index") {
+                    public String controller() {
+                        setHeader("Content-Type",   "text/plain");
+                        setHeader("Accept-Charset", "utf-8");
+                        return "Hello, world!";
+                    }
+                };
+            }
+        };
+        HTTPInteraction interaction = interactionFor(app, "POST", "/index");
+        assertEquals("text/plain", interaction.headerFor("Content-Type"));
+        assertEquals("utf-8", interaction.headerFor("Accept-Charset"));
+    }
+
 
 
     public String output() {

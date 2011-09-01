@@ -80,6 +80,10 @@ public abstract class WebFramework {
         protected void setStatus(int code) {
             interaction.setStatus(code);
         }
+
+        protected void setHeader(String key, Object value) {
+            interaction.setHeader(key, value);
+        }
     }
 
 
