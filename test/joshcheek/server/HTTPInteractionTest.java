@@ -1,6 +1,8 @@
 package joshcheek.server;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.regex.Pattern;
 
 /**
@@ -150,7 +152,36 @@ public class HTTPInteractionTest extends junit.framework.TestCase {
         assertMatches("Content-Length:\\s+20\r\n", output());
     }
 
+    public void testContentTypeDefaultsToTextHtmlWithCharsetUtf8() throws IOException {
+        assertDefaultHeader("Content-Type", "text/html;charset=utf-8");
+    }
 
+    public void testContentLengthDefaultsToZero() throws IOException {
+        assertDefaultHeader("Content-Length", "0");
+    }
+
+    public void testServerDefaultsToJoshServer() throws IOException {
+        assertDefaultHeader("Server", "JoshServer");
+    }
+
+    public void testDateDefaultsToToday() throws IOException {
+        String              dateFormat  = "E, dd MMM yyyy HH:mm:ss z";
+        SimpleDateFormat    formatter   = new SimpleDateFormat(dateFormat);
+        Calendar            calendar    = Calendar.getInstance();
+        String              today       = formatter.format(calendar.getTime());
+        calendar.set(2011, Calendar.SEPTEMBER, 1, 15, 42, 47);
+        String              septFirst   = formatter.format(calendar.getTime());
+        assertEquals("Thu, 01 Sep 2011 15:42:47 CDT", septFirst);
+        assertDefaultHeader("Date", today);
+    }
+
+
+
+    private void assertDefaultHeader(String key, String value) throws IOException {
+        handle(GET_REQUEST);
+        interaction.writeResponse();
+        assertMatches(key + ":\\s+" + value + "\r\n", output());
+    }
 
     private String output() {
         return output.toString();

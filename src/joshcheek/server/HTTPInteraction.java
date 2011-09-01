@@ -3,6 +3,9 @@ package joshcheek.server;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 
 /**
@@ -126,8 +129,15 @@ public class HTTPInteraction {
 
         public ResponseProcessor(PrintStream writer) {
             this.writer = writer;
+            setDefaultHeaders();
         }
 
+        private void setDefaultHeaders() {
+            setHeader("Content-Type", "text/html;charset=utf-8");
+            setHeader("Content-Length", 0);
+            setHeader("Server", "JoshServer");
+            setHeader("Date", todaysDate());
+        }
 
         public void setContent(String content) {
             this.content = content;
@@ -139,6 +149,15 @@ public class HTTPInteraction {
 
         public String response() {
             return statusLine() + headers() + content;
+        }
+
+        public void setStatus(int status) {
+            this.status = status;
+        }
+
+        // value must implement toString
+        public void setHeader(String key, Object value) {
+            headers.put(key, value.toString());
         }
 
         private String headers() {
@@ -171,13 +190,10 @@ public class HTTPInteraction {
             return "HTTP/1.1";
         }
 
-        public void setStatus(int status) {
-            this.status = status;
-        }
-
-        // value must implement toString
-        public void setHeader(String key, Object value) {
-            headers.put(key, value.toString());
+        private String todaysDate() {
+            SimpleDateFormat formatter = new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss z");
+            Date now = Calendar.getInstance().getTime();
+            return formatter.format(now);
         }
     }
 
