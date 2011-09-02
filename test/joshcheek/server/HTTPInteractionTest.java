@@ -191,6 +191,13 @@ public class HTTPInteractionTest extends junit.framework.TestCase {
         assertDefaultHeader("Date", today);
     }
 
+    public void testThereIsABlankLineBeforeTheContent() throws IOException {
+        handle(GET_REQUEST);
+        interaction.setContent("ABCD");
+        interaction.writeResponse();
+        assertTrue(output().endsWith("\r\n\r\nABCD"));
+    }
+
 
 
     private void assertDefaultHeader(String key, String value) throws IOException {

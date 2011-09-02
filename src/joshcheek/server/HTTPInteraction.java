@@ -1,6 +1,5 @@
 package joshcheek.server;
 
-import javax.net.ssl.SSLEngineResult;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -167,7 +166,7 @@ public class HTTPInteraction {
         }
 
         public String response() {
-            return statusLine() + headers() + content;
+            return statusLine() + headers() + CRLF + content;
         }
 
         public void setStatus(int status) {
@@ -243,10 +242,12 @@ public class HTTPInteraction {
         }
 
         private void processHeader(BufferedReader reader) throws IOException {
-            String[] firstLine = reader.readLine().split(" ");
-            requestMethod = firstLine[0];
-            requestURI = firstLine[1];
-            requestProtocolVersion = firstLine[2];
+            String firstLine        = reader.readLine();
+            String[] statusLine     = firstLine.split(" ");
+            requestMethod           = statusLine[0];
+            requestURI              = statusLine[1];
+            requestProtocolVersion  = statusLine[2];
+
         }
     }
 

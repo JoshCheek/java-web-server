@@ -95,7 +95,6 @@ public abstract class WebFramework {
         public void handle(HTTPInteraction interaction) throws IOException {
             AbstractRequest request = requestFor(interaction.requestMethod(), interaction.requestUri());
             request.respondTo(interaction);
-            interaction.writeResponse();
         }
     }
 
