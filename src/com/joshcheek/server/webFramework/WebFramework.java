@@ -3,6 +3,7 @@ package com.joshcheek.server.webFramework;
 import com.joshcheek.server.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -14,8 +15,8 @@ import java.util.HashMap;
  */
 public abstract class WebFramework {
     private int port;
-    private HashMap<String,HashMap<String,AbstractRequest>> routes =
-        new HashMap<String,HashMap<String,AbstractRequest>>();
+    private HashMap<String,ArrayList<AbstractRequest>> routes =
+        new HashMap<String,ArrayList<AbstractRequest>>();
     private boolean running = false;
     private SocketService socketService;;
 
@@ -31,21 +32,24 @@ public abstract class WebFramework {
     }
 
     public boolean doesItRespondTo(String method, String uri) {
-        HashMap<String, AbstractRequest> methodsRoutes = routes.get(method);
+        ArrayList<AbstractRequest> methodsRoutes = routes.get(method);
         if(methodsRoutes == null)
             return false;
-        return methodsRoutes.containsKey(uri);
+        for(AbstractRequest request : methodsRoutes)
+            if(request.doesItRespondTo(uri))
+                return true;
+        return false;
     }
 
     private void register(AbstractRequest request) {
         ensureCanRespondTo(request);
-        routes.get(request.method()).put(request.uri(), request);
+        routes.get(request.method()).add(request);
     }
 
     private void ensureCanRespondTo(AbstractRequest request) {
         String method = request.method();
         if(routes.get(method) == null)
-            routes.put(method, new HashMap<String, AbstractRequest>());
+            routes.put(method, new ArrayList<AbstractRequest>());
     }
 
     public void respondTo(String method, String uri, HTTPInteraction interaction) {
@@ -53,11 +57,11 @@ public abstract class WebFramework {
     }
 
     private AbstractRequest requestFor(String method, String uri) {
-        HashMap<String, AbstractRequest> methodsRoutes = routes.get(method);
-        if(methodsRoutes == null) return new FourOhFourRequest();
-        AbstractRequest request = methodsRoutes.get(uri);
-        if(request == null) return new FourOhFourRequest();
-        return request;
+        if(!doesItRespondTo(method, uri)) return new FourOhFourRequest();
+        for(AbstractRequest request : routes.get(method))
+            if(request.doesItRespondTo(uri))
+                return request;
+        return null; // shouldn't be possible because we checked that it responds to this uri
     }
 
     public boolean isRunning() {
@@ -100,14 +104,16 @@ public abstract class WebFramework {
 
 
     public abstract class AbstractRequest {
-        private String uri;
+        private String uriPattern;
         private HTTPInteraction interaction;
+        private ParamParser parser;
 
         public abstract String controller();
         public abstract String method();
 
-        public AbstractRequest(String uri) {
-            this.uri = uri;
+        public AbstractRequest(String uriPattern) {
+            this.uriPattern = uriPattern;
+            this.parser = new ParamParser(uriPattern);
             register(this);
         }
 
@@ -116,7 +122,7 @@ public abstract class WebFramework {
         }
 
         public String uri() {
-            return uri;
+            return uriPattern;
         }
 
         public void respondTo(HTTPInteraction interaction) {
@@ -130,6 +136,15 @@ public abstract class WebFramework {
 
         protected void setHeader(String key, Object value) {
             interaction.setHeader(key, value);
+        }
+
+        public String getParam(String name) {
+            ParamParser parser = new ParamParser(uri());
+            return parser.paramFor(interaction.requestUri(), name);
+        }
+
+        public boolean doesItRespondTo(String uri) {
+            return parser.doesItMatch(uri);
         }
     }
 

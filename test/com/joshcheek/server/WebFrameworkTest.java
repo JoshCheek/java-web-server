@@ -165,6 +165,20 @@ public class WebFrameworkTest extends junit.framework.TestCase  {
         assertEquals("0", interaction.headerFor("Content-Length"));
     }
 
+    public void testCanMatchUrl() {
+        WebFramework app = new WebFramework(1234) {
+            public void defineRoutes() {
+                new PostRequest("/:route") {
+                    public String controller() {
+                        return getParam("route");
+                    }
+                };
+            }
+        };
+        HTTPInteraction interaction = interactionFor(app, "POST", "/abcdefg");
+        assertEquals("abcdefg", interaction.getContent());
+    }
+
 
 
 
