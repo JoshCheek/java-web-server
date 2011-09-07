@@ -166,7 +166,7 @@ public class HTTPInteraction {
         }
 
         public String response() {
-            return statusLine() + headers() + CRLF + content;
+            return statusLine() + headers() + CRLF + getContent();
         }
 
         public void setStatus(int status) {
