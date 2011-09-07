@@ -173,7 +173,6 @@ public class HTTPInteraction {
             this.status = status;
         }
 
-        // value must implement toString
         public void setHeader(String key, Object value) {
             headers.put(key, value.toString());
         }
