@@ -1,4 +1,4 @@
-package joshcheek.server.webFramework;
+package com.joshcheek.server.webFramework;
 
 import java.io.IOException;
 

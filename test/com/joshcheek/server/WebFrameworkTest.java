@@ -1,6 +1,6 @@
-package joshcheek.server;
+package com.joshcheek.server;
 
-import joshcheek.server.webFramework.WebFramework;
+import com.joshcheek.server.webFramework.WebFramework;
 
 import java.io.*;
 import java.net.Socket;

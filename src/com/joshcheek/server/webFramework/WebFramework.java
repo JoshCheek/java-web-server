@@ -1,6 +1,6 @@
-package joshcheek.server.webFramework;
+package com.joshcheek.server.webFramework;
 
-import joshcheek.server.*;
+import com.joshcheek.server.*;
 
 import java.io.IOException;
 import java.util.HashMap;

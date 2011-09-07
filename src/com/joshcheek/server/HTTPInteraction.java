@@ -1,4 +1,4 @@
-package joshcheek.server;
+package com.joshcheek.server;
 
 import java.io.BufferedReader;
 import java.io.IOException;
