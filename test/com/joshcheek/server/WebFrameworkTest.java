@@ -165,6 +165,20 @@ public class WebFrameworkTest extends junit.framework.TestCase  {
         assertEquals("0", interaction.headerFor("Content-Length"));
     }
 
+    public void testCanMatchUrl() {
+        WebFramework app = new WebFramework(1234) {
+            public void defineRoutes() {
+                new PostRequest("/:route") {
+                    public String controller() {
+                        return getParam("route");
+                    }
+                };
+            }
+        };
+        HTTPInteraction interaction = interactionFor(app, "POST", "/abcdefg");
+        assertEquals("abcdefg", interaction.getContent());
+    }
+
 
 
 
@@ -175,22 +189,26 @@ public class WebFrameworkTest extends junit.framework.TestCase  {
     }
 
     private HTTPInteraction interactionFor(WebFramework app, String method, String uri) {
-        HTTPInteraction interaction = mockHTTPInteraction();
+        HTTPInteraction interaction = mockHTTPInteraction(uri);
         app.respondTo(method, uri, interaction);
         return interaction;
     }
 
     private HTTPInteraction mockHTTPInteraction() {
+        return mockHTTPInteraction("/");
+    }
+
+    private HTTPInteraction mockHTTPInteraction(String uri) {
         try {
-            return new HTTPInteraction(mockReader(), mockWriter());
+            return new HTTPInteraction(mockReader(uri), mockWriter());
         } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    private BufferedReader mockReader() {
-        return new BufferedReader(new StringReader("GET / HTTP/1.1"));
+    private BufferedReader mockReader(String uri) {
+        return new BufferedReader(new StringReader("GET " + uri + " HTTP/1.1"));
     }
 
     private PrintStream mockWriter() {

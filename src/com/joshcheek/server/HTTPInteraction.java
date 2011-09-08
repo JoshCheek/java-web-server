@@ -132,7 +132,6 @@ public class HTTPInteraction {
         return responseProcessor.getContent();
     }
 
-
     public class ResponseProcessor {
         private HashMap<String, String> headers = new HashMap<String, String>();
         private int                     status  = 200;
