@@ -26,6 +26,13 @@ public class CobSpec {
                         return "Simultaneous :)";
                     }
                 };
+
+                new GetRequest("/abc/:def/ghi") {
+                    public String controller() {
+                        return getParam("def");
+                    }
+                };
+
             }
         };
 
